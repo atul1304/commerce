@@ -1,0 +1,101 @@
+{% extends 'auctions/layout.html' %}
+
+{% block title %}
+Listings
+{%endblock%}
+
+{% block body%}
+
+<h1>Listing: {{listing.title}}</h1>
+
+{%if not listing.active and item.createdby == request.user %}
+<div class="alert alert-success" role="alert">
+    <h3>You Won The Bid!!!</h3>
+  </div>
+{%endif%}
+
+{% if message%}
+<div class="alert alert-danger" role="alert">
+    <h3>{{message}}!!!</h3>
+  </div>
+{% endif %}
+<div class="m-2">
+    <div class="btn-group btn-group-toggle" data-toggle="buttons">    
+<form action={% url 'watch' listing.id%} method="post"> 
+{%csrf_token%}
+{%if watchList%}
+    <input type="hidden" name="add" value="{{watchList.id}}"/> 
+    <button type="submit" class="btn btn-danger m-2" name="watchlist">Remove from watchlist</button>  
+
+{%else%}   
+    <input type="hidden" name="add" value="add"/> 
+    <button type="submit" class="btn btn-secondary m-2" name="watchlist">Add to watchlist</button>  
+{%endif%}
+</form>
+
+<form action="{% url 'unlist' listing.id %}" method="post">
+{% csrf_token %}
+{% if listing.createdby == request.user and listing.active %}
+<button type="submit" class="btn btn-danger m-2">UnList</button>
+{% endif %}
+</form>
+</div>
+    <div class="text-center">
+    {%if listing.upload.name%}
+        <img src="{{listing.upload.url}}" class="rounded" height="300">
+    {% endif %}
+      </div>
+      
+      <div class="form-group">
+        <h3>{{listing.desc}}</h3>
+    </div>
+    <div class="form-group">
+        <h3>$
+        {% if item and item.bidprice > listing.price%}
+            {{item.bidprice}}
+        {%else%}
+        {{listing.price}}
+        {%endif%}
+    </h3>
+    </div>
+    <form action={% url 'listings' listing.id %} method="post" >
+    {% csrf_token %}
+    <div class="form-group">
+        <input autofocus class="form-control" type="text" name="bidprice" placeholder="Bid">
+    </div>
+    <input class="btn btn-primary" type="submit" value="Place Bid">
+
+    </form>
+</div>
+    <h1>Details</h1>
+    <ul>
+        <li>Listed by:{{listing.createdby}}</li>
+        <li>Category:
+            {%if listing.category%}
+               {{listing.category}}
+            {% else%}
+            No Category Listed
+            {% endif %}
+        </li>
+    </ul>
+<div>   
+<h1>Comment</h1>
+<form action={% url 'comment' listing.id%} method="post">
+    {%csrf_token%}
+    <div class="form-group">
+        <textarea class="form-control" type="text" name="comment" placeholder="Enter Comment" rows="2"></textarea>
+        <input class="btn btn-primary m-2" type="submit" value="Post">
+    </div>
+</form>
+
+<div class="card" >
+    
+    <ul class="list-group list-group-flush">
+        {% for comment in comments%} 
+      <li class="list-group-item">{{comment.comment}} by {{comment.createdby}}</li>
+    {%endfor%}
+  </div>
+
+</div>
+
+{% endblock %}
