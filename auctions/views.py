@@ -118,7 +118,7 @@ def bid(data,bidprice,user):
                 data.auction_bid.update(bidprice=bidprice,createdby=user)
             else:
                 return 'Entered Bid Is Less Then Current Bid'
-        elif data(bidprice):
+        elif data.isvalidfirstbid(bidprice):
             data.auction_bid.create(bid_item=data,bidprice=bidprice,createdby=user)
             
         else:
